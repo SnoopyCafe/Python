@@ -23,10 +23,10 @@ for message_row in cur :
         if len(word) < 4 : continue
         counts[word] = counts.get(word,0) + 1
 
-x = sorted(counts, key=counts.get, reverse=True)
+letter_counts = sorted(counts, key=counts.get, reverse=True)
 highest = None
 lowest = None
-for k in x[:100]:
+for k in letter_counts[:100]:
     if highest is None or highest < counts[k] :
         highest = counts[k]
     if lowest is None or lowest > counts[k] :
@@ -40,7 +40,7 @@ smallsize = 20
 fhand = open('gword.js','w')
 fhand.write("gword = [")
 first = True
-for k in x[:100]:
+for k in letter_counts[:100]:
     if not first : fhand.write( ",\n")
     first = False
     size = counts[k]

@@ -1,4 +1,4 @@
-# Note - this code must run in Python 2.x and you must download
+# Note - this code must run in Python 2.letter_counts and you must download
 # http://www.pythonlearn.com/code/BeautifulSoup.py
 # Into the same folder as this program
 
@@ -18,7 +18,7 @@ cur.execute('''
 # A slightly extended dictionary
 class sash(dict):
     def sortvalues(self,reverse=True):
-        return sorted(self.items(),key=lambda x: (x[1], x[0]), reverse=reverse)
+        return sorted(self.items(),key=lambda letter_counts: (letter_counts[1], letter_counts[0]), reverse=reverse)
 
 def tinyTable(url):
     global cur,conn

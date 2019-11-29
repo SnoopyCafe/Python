@@ -42,13 +42,13 @@ def fixsender(sender,allsenders=None) :
     mpieces = sender.split("@")
     if len(mpieces) != 2 : return sender
     dns = mpieces[1]
-    x = dns
+    letter_counts = dns
     pieces = dns.split(".")
     if dns.endswith(".edu") or dns.endswith(".com") or dns.endswith(".org") or dns.endswith(".net") :
         dns = ".".join(pieces[-2:])
     else:
         dns = ".".join(pieces[-3:])
-    # if dns != x : print x,dns
+    # if dns != letter_counts : print letter_counts,dns
     # if dns != dnsmapping.get(dns,dns) : print dns,dnsmapping.get(dns,dns)
     dns = dnsmapping.get(dns,dns)
     return mpieces[0] + '@' + dns
@@ -101,13 +101,13 @@ def parsemaildate(md) :
 def parseheader(hdr, allsenders=None):
     if hdr is None or len(hdr) < 1 : return None
     sender = None
-    x = re.findall('\nFrom: .* <(\S+@\S+)>\n', hdr)
-    if len(x) >= 1 :
-        sender = x[0]
+    letter_counts = re.findall('\nFrom: .* <(\S+@\S+)>\n', hdr)
+    if len(letter_counts) >= 1 :
+        sender = letter_counts[0]
     else:
-        x = re.findall('\nFrom: (\S+@\S+)\n', hdr)
-        if len(x) >= 1 :
-            sender = x[0]
+        letter_counts = re.findall('\nFrom: (\S+@\S+)\n', hdr)
+        if len(letter_counts) >= 1 :
+            sender = letter_counts[0]
 
     # normalize the domain name of Email addresses
     sender = fixsender(sender, allsenders)

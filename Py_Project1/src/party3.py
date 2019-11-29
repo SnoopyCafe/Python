@@ -1,5 +1,5 @@
 class PartyAnimal:
-   x = 0
+   letter_counts = 0
 
    def __init__(self):
      print "I am constructed"

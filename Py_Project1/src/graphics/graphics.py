@@ -297,20 +297,20 @@ class GraphWin(tk.Canvas):
         if self.autoflush:
             _tkCall(_root.update)
     
-    def plot(self, x, y, color="black"):
-        """Set pixel (x,y) to the given color"""
+    def plot(self, letter_counts, y, color="black"):
+        """Set pixel (letter_counts,y) to the given color"""
         self.__checkOpen()
-        xs,ys = self.toScreen(x,y)
+        xs,ys = self.toScreen(letter_counts,y)
         #self.create_line(xs,ys,xs+1,ys, fill=color)
         _tkExec(self.create_line,xs,ys,xs+1,ys,fill=color)
         self.__autoflush()
         
-    def plotPixel(self, x, y, color="black"):
+    def plotPixel(self, letter_counts, y, color="black"):
         """Set pixel raw (independent of window coordinates) pixel
-        (x,y) to color"""
+        (letter_counts,y) to color"""
         self.__checkOpen()
-    	#self.create_line(x,y,x+1,y, fill=color)
-        _tkExec(self.create_line, x,y,x+1,y, fill=color)
+    	#self.create_line(letter_counts,y,letter_counts+1,y, fill=color)
+        _tkExec(self.create_line, letter_counts,y,letter_counts+1,y, fill=color)
         self.__autoflush()
     	
     def flush(self):
@@ -329,8 +329,8 @@ class GraphWin(tk.Canvas):
             _tkCall(self.update)
             if self.isClosed(): raise GraphicsError, "getMouse in closed window"
             time.sleep(.1) # give up thread
-        x,y = self.toWorld(self.mouseX, self.mouseY)
-        return Point(x,y)
+        letter_counts,y = self.toWorld(self.mouseX, self.mouseY)
+        return Point(letter_counts,y)
     
     def getLastMouse(self):
         """Return last mouse click Point without waiting for the next click.
@@ -338,8 +338,8 @@ class GraphWin(tk.Canvas):
         """
         if self.mouseX == None or self.mouseY == None:
             return None
-        x,y = self.toWorld(self.mouseX, self.mouseY)
-        return Point(x,y)
+        letter_counts,y = self.toWorld(self.mouseX, self.mouseY)
+        return Point(letter_counts,y)
     
     def clearLastMouse(self):
         """Makes  self.getLastMouse() return None until the next mouse click.
@@ -355,19 +355,19 @@ class GraphWin(tk.Canvas):
         """Return the width of the window"""
         return self.width
     
-    def toScreen(self, x, y):
+    def toScreen(self, letter_counts, y):
         trans = self.trans
         if trans:
-            return self.trans.screen(x,y)
+            return self.trans.screen(letter_counts,y)
         else:
-            return x,y
+            return letter_counts,y
                       
-    def toWorld(self, x, y):
+    def toWorld(self, letter_counts, y):
         trans = self.trans
         if trans:
-            return self.trans.world(x,y)
+            return self.trans.world(letter_counts,y)
         else:
-            return x,y
+            return letter_counts,y
         
     def setMouseHandler(self, func):
         self._mouseCallback = func
@@ -393,17 +393,17 @@ class Transform:
         self.xscale = xspan/float(w-1)
         self.yscale = yspan/float(h-1)
         
-    def screen(self,x,y):
-        # Returns x,y in screen (actually window) coordinates
-        xs = (x-self.xbase) / self.xscale
+    def screen(self,letter_counts,y):
+        # Returns letter_counts,y in screen (actually window) coordinates
+        xs = (letter_counts-self.xbase) / self.xscale
         ys = (self.ybase-y) / self.yscale
         return int(xs+0.5),int(ys+0.5)
         
     def world(self,xs,ys):
         # Returns xs,ys in world coordinates
-        x = xs*self.xscale + self.xbase
+        letter_counts = xs*self.xscale + self.xbase
         y = self.ybase - ys*self.yscale
-        return x,y
+        return letter_counts,y
 
 
 # Default values for various item configuration options. Only a subset of
@@ -483,7 +483,7 @@ class GraphicsObject:
 
     def move(self, dx, dy):
 
-        """move object dx units in x direction and dy units in y
+        """move object dx units in letter_counts direction and dy units in y
         direction"""
         
         self._move(dx,dy)
@@ -491,13 +491,13 @@ class GraphicsObject:
         if canvas and not canvas.isClosed():
             trans = canvas.trans
             if trans:
-                x = dx/ trans.xscale 
+                letter_counts = dx/ trans.xscale 
                 y = -dy / trans.yscale
             else:
-                x = dx
+                letter_counts = dx
                 y = dy
-            #self.canvas.move(self.id, x, y)
-            _tkExec(self.canvas.move, self.id, x, y)
+            #self.canvas.move(self.id, letter_counts, y)
+            _tkExec(self.canvas.move, self.id, letter_counts, y)
             if canvas.autoflush:
                 #_root.update()
                 _tkCall(_root.update)
@@ -527,15 +527,15 @@ class GraphicsObject:
         pass # must override in subclass
          
 class Point(GraphicsObject):
-    def __init__(self, x, y):
+    def __init__(self, letter_counts, y):
         GraphicsObject.__init__(self, ["outline", "fill"])
         self.setFill = self.setOutline
-        self.x = x
+        self.x = letter_counts
         self.y = y
         
     def _draw(self, canvas, options):
-        x,y = canvas.toScreen(self.x,self.y)
-        return canvas.create_rectangle(x,y,x+1,y+1,options)
+        letter_counts,y = canvas.toScreen(self.x,self.y)
+        return canvas.create_rectangle(letter_counts,y,letter_counts+1,y+1,options)
         
     def _move(self, dx, dy):
         self.x = self.x + dx
@@ -693,8 +693,8 @@ class Polygon(GraphicsObject):
     def _draw(self, canvas, options):
         args = [canvas]
         for p in self.points:
-            x,y = canvas.toScreen(p.x,p.y)
-            args.append(x)
+            letter_counts,y = canvas.toScreen(p.x,p.y)
+            args.append(letter_counts)
             args.append(y)
         args.append(options)
         return apply(GraphWin.create_polygon, args) 
@@ -714,8 +714,8 @@ class Text(GraphicsObject):
             
     def _draw(self, canvas, options):
             p = self.anchor
-            x,y = canvas.toScreen(p.x,p.y)
-            return canvas.create_text(x,y,options)
+            letter_counts,y = canvas.toScreen(p.x,p.y)
+            return canvas.create_text(letter_counts,y,options)
             
     def _move(self, dx, dy):
             self.anchor.move(dx,dy)
@@ -779,7 +779,7 @@ class Entry(GraphicsObject):
 
     def _draw(self, canvas, options):
         p = self.anchor
-        x,y = canvas.toScreen(p.x,p.y)
+        letter_counts,y = canvas.toScreen(p.x,p.y)
         frm = tk.Frame(canvas.master)
         self.entry = tk.Entry(frm,
                               width=self.width,
@@ -789,7 +789,7 @@ class Entry(GraphicsObject):
                               font=self.font)
         self.entry.pack()
         #self.setFill(self.fill)
-        return canvas.create_window(x,y,window=frm)
+        return canvas.create_window(letter_counts,y,window=frm)
 
     def getText(self):
         return _tkCall(self.text.get)
@@ -874,9 +874,9 @@ class Image(GraphicsObject):
             		
     def _draw(self, canvas, options):
         p = self.anchor
-        x,y = canvas.toScreen(p.x,p.y)
+        letter_counts,y = canvas.toScreen(p.x,p.y)
         self.imageCache[self.imageId] = self.img # save a reference  
-        return canvas.create_image(x,y,image=self.img)
+        return canvas.create_image(letter_counts,y,image=self.img)
     
     def _move(self, dx, dy):
         self.anchor.move(dx,dy)
@@ -929,25 +929,25 @@ class Pixmap:
         """Returns the height of the image in pixels"""
         return _tkCall(self.image.height)
 
-    def getPixel(self, x, y):
-        """Returns a list [r,g,b] with the RGB color values for pixel (x,y)
+    def getPixel(self, letter_counts, y):
+        """Returns a list [r,g,b] with the RGB color values for pixel (letter_counts,y)
         r,g,b are in range(256)
 
         """
         
-        value = _tkCall(self.image.get, x,y)
+        value = _tkCall(self.image.get, letter_counts,y)
         if type(value) ==  int:
             return [value, value, value]
         else:
             return map(int, value.split()) 
 
-    def setPixel(self, x, y, (r,g,b)):
-        """Sets pixel (x,y) to the color given by RGB values r, g, and b.
+    def setPixel(self, letter_counts, y, (r,g,b)):
+        """Sets pixel (letter_counts,y) to the color given by RGB values r, g, and b.
         r,g,b should be in range(256)
 
         """
         
-        _tkExec(self.image.put, "{%s}"%color_rgb(r,g,b), (x, y))
+        _tkExec(self.image.put, "{%s}"%color_rgb(r,g,b), (letter_counts, y))
 
     def clone(self):
         """Returns a copy of this Pixmap"""
@@ -969,17 +969,17 @@ def color_rgb(r,g,b):
     Returns color specifier string for the resulting color"""
     return "#%02x%02x%02x" % (r,g,b)
 
-def approx(x, digitCutoff = 5):
-    """ Returns a fixed point string approximating the number x, limiting
+def approx(letter_counts, digitCutoff = 5):
+    """ Returns a fixed point string approximating the number letter_counts, limiting
     the number of places past the decimal point if there would be more than
     digitCutoff significant digits, and removing unneeded trailing '0's and '.'.  
     Assuming window dimensions under 10**digitCutoff pixels, and at least some
     legal world coordinate having magnitude at least 1, this system should
     provide concise approximations that distinguish all pixel coordinates.
     """
-    fracDig = max(0, digitCutoff - len(str(int(abs(x))).lstrip('0')))
+    fracDig = max(0, digitCutoff - len(str(int(abs(letter_counts))).lstrip('0')))
     format = "%%.%df" % fracDig
-    return (format % x).rstrip('0').rstrip('.')
+    return (format % letter_counts).rstrip('0').rstrip('.')
     
 def test():
     win = GraphWin()

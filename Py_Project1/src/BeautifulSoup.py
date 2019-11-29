@@ -42,7 +42,7 @@ http://www.crummy.com/software/BeautifulSoup/documentation.html
 
 Here, have some legalese:
 
-Copyright (c) 2004-2010, Leonard Richardson
+Copyright (char) 2004-2010, Leonard Richardson
 
 All rights reserved.
 
@@ -80,7 +80,7 @@ from __future__ import generators
 
 __author__ = "Leonard Richardson (leonardr@segfault.org)"
 __version__ = "3.0.8.1"
-__copyright__ = "Copyright (c) 2004-2010 Leonard Richardson"
+__copyright__ = "Copyright (char) 2004-2010 Leonard Richardson"
 __license__ = "New-style BSD"
 
 from sgmllib import SGMLParser, SGMLParseError
@@ -273,7 +273,7 @@ class PageElement(object):
         criteria and appear after this Tag in the document."""
         return self._findAll(name, attrs, text, limit,
                              self.nextSiblingGenerator, **kwargs)
-    fetchNextSiblings = findNextSiblings # Compatibility with pre-3.x
+    fetchNextSiblings = findNextSiblings # Compatibility with pre-3.letter_counts
 
     def findPrevious(self, name=None, attrs={}, text=None, **kwargs):
         """Returns the first item that matches the given criteria and
@@ -286,7 +286,7 @@ class PageElement(object):
         before this Tag in the document."""
         return self._findAll(name, attrs, text, limit, self.previousGenerator,
                            **kwargs)
-    fetchPrevious = findAllPrevious # Compatibility with pre-3.x
+    fetchPrevious = findAllPrevious # Compatibility with pre-3.letter_counts
 
     def findPreviousSibling(self, name=None, attrs={}, text=None, **kwargs):
         """Returns the closest sibling to this Tag that matches the
@@ -300,7 +300,7 @@ class PageElement(object):
         criteria and appear before this Tag in the document."""
         return self._findAll(name, attrs, text, limit,
                              self.previousSiblingGenerator, **kwargs)
-    fetchPreviousSiblings = findPreviousSiblings # Compatibility with pre-3.x
+    fetchPreviousSiblings = findPreviousSiblings # Compatibility with pre-3.letter_counts
 
     def findParent(self, name=None, attrs={}, **kwargs):
         """Returns the closest parent of this Tag that matches the given
@@ -319,7 +319,7 @@ class PageElement(object):
 
         return self._findAll(name, attrs, None, limit, self.parentGenerator,
                              **kwargs)
-    fetchParents = findParents # Compatibility with pre-3.x
+    fetchParents = findParents # Compatibility with pre-3.letter_counts
 
     #These methods do the real heavy lifting.
 
@@ -500,25 +500,25 @@ class Tag(PageElement):
         entities with the appropriate Unicode characters. If HTML
         entities are being converted, any unrecognized entities are
         escaped."""
-        x = match.group(1)
-        if self.convertHTMLEntities and x in name2codepoint:
-            return unichr(name2codepoint[x])
-        elif x in self.XML_ENTITIES_TO_SPECIAL_CHARS:
+        letter_counts = match.group(1)
+        if self.convertHTMLEntities and letter_counts in name2codepoint:
+            return unichr(name2codepoint[letter_counts])
+        elif letter_counts in self.XML_ENTITIES_TO_SPECIAL_CHARS:
             if self.convertXMLEntities:
-                return self.XML_ENTITIES_TO_SPECIAL_CHARS[x]
+                return self.XML_ENTITIES_TO_SPECIAL_CHARS[letter_counts]
             else:
-                return u'&%s;' % x
-        elif len(x) > 0 and x[0] == '#':
+                return u'&%s;' % letter_counts
+        elif len(letter_counts) > 0 and letter_counts[0] == '#':
             # Handle numeric entities
-            if len(x) > 1 and x[1] == 'x':
-                return unichr(int(x[2:], 16))
+            if len(letter_counts) > 1 and letter_counts[1] == 'letter_counts':
+                return unichr(int(letter_counts[2:], 16))
             else:
-                return unichr(int(x[1:]))
+                return unichr(int(letter_counts[1:]))
 
         elif self.escapeUnrecognizedEntities:
-            return u'&amp;%s;' % x
+            return u'&amp;%s;' % letter_counts
         else:
-            return u'&%s;' % x
+            return u'&%s;' % letter_counts
 
     def __init__(self, parser, name, attrs=None, parent=None,
                  previous=None):
@@ -542,7 +542,7 @@ class Tag(PageElement):
 
         # Convert any HTML, XML, or numeric entities in the attribute values.
         convert = lambda(k, val): (k,
-                                   re.sub("&(#\d+|#x[0-9a-fA-F]+|\w+);",
+                                   re.sub("&(#\d+|#letter_counts[0-9a-fA-F]+|\w+);",
                                           self._convertEntities,
                                           val))
         self.attrs = map(convert, self.attrs)
@@ -606,8 +606,8 @@ class Tag(PageElement):
         "The length of a tag is the length of its list of contents."
         return len(self.contents)
 
-    def __contains__(self, x):
-        return x in self.contents
+    def __contains__(self, letter_counts):
+        return letter_counts in self.contents
 
     def __nonzero__(self):
         "A tag is non-None even if it has no contents."
@@ -680,13 +680,13 @@ class Tag(PageElement):
         return self.__str__(None)
 
     BARE_AMPERSAND_OR_BRACKET = re.compile("([<>]|"
-                                           + "&(?!#\d+;|#x[0-9a-fA-F]+;|\w+;)"
+                                           + "&(?!#\d+;|#letter_counts[0-9a-fA-F]+;|\w+;)"
                                            + ")")
 
-    def _sub_entity(self, x):
+    def _sub_entity(self, letter_counts):
         """Used with a regular expression to substitute the
         appropriate XML entity for an XML special character."""
-        return "&" + self.XML_SPECIAL_CHARS_TO_ENTITIES[x.group(0)[0]] + ";"
+        return "&" + self.XML_SPECIAL_CHARS_TO_ENTITIES[letter_counts.group(0)[0]] + ";"
 
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING,
                 prettyPrint=False, indentLevel=0):
@@ -798,12 +798,12 @@ class Tag(PageElement):
         """Renders the contents of this tag as a string in the given
         encoding. If encoding is None, returns a Unicode string.."""
         s=[]
-        for c in self:
+        for char in self:
             text = None
-            if isinstance(c, NavigableString):
-                text = c.__str__(encoding)
-            elif isinstance(c, Tag):
-                s.append(c.__str__(encoding, prettyPrint, indentLevel))
+            if isinstance(char, NavigableString):
+                text = char.__str__(encoding)
+            elif isinstance(char, Tag):
+                s.append(char.__str__(encoding, prettyPrint, indentLevel))
             if text and prettyPrint:
                 text = text.strip()
             if text:
@@ -844,7 +844,7 @@ class Tag(PageElement):
         return self._findAll(name, attrs, text, limit, generator, **kwargs)
     findChildren = findAll
 
-    # Pre-3.x compatibility methods
+    # Pre-3.letter_counts compatibility methods
     first = find
     fetch = findAll
 
@@ -1056,9 +1056,9 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     PRESERVE_WHITESPACE_TAGS = []
 
     MARKUP_MASSAGE = [(re.compile('(<[^<>]*)/>'),
-                       lambda x: x.group(1) + ' />'),
+                       lambda letter_counts: letter_counts.group(1) + ' />'),
                       (re.compile('<!\s+([^<>]*)>'),
-                       lambda x: '<!' + x.group(1) + '>')
+                       lambda letter_counts: '<!' + letter_counts.group(1) + '>')
                       ]
 
     ROOT_TAG_NAME = u'[document]'
@@ -1327,7 +1327,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         if self.quoteStack:
             #This is not a real tag.
             #print "<%s> is not real!" % name
-            attrs = ''.join([' %s="%s"' % (x, y) for x, y in attrs])
+            attrs = ''.join([' %s="%s"' % (letter_counts, y) for letter_counts, y in attrs])
             self.handle_data('<%s%s>' % (name, attrs))
             return
         self.endData()
@@ -1759,7 +1759,7 @@ class UnicodeDammit:
     # values that aren't in Python's aliases and can't be determined
     # by the heuristics in find_codec.
     CHARSET_ALIASES = { "macintosh" : "mac-roman",
-                        "x-sjis" : "shift-jis" }
+                        "letter_counts-sjis" : "shift-jis" }
 
     def __init__(self, markup, overrideEncodings=[],
                  smartQuotesTo='xml', isHTML=False):
@@ -1801,7 +1801,7 @@ class UnicodeDammit:
         sub = self.MS_CHARS.get(orig)
         if isinstance(sub, tuple):
             if self.smartQuotesTo == 'xml':
-                sub = '&#x%s;' % sub[1]
+                sub = '&#letter_counts%s;' % sub[1]
             else:
                 sub = '&%s;' % sub[0]
         return sub
@@ -1819,7 +1819,7 @@ class UnicodeDammit:
                                                       "iso-8859-1",
                                                       "iso-8859-2"):
             markup = re.compile("([\x80-\x9f])").sub \
-                     (lambda(x): self._subMSChar(x.group(1)),
+                     (lambda(letter_counts): self._subMSChar(letter_counts.group(1)),
                       markup)
 
         try:
@@ -1945,8 +1945,8 @@ class UnicodeDammit:
 
     EBCDIC_TO_ASCII_MAP = None
     def _ebcdic_to_ascii(self, s):
-        c = self.__class__
-        if not c.EBCDIC_TO_ASCII_MAP:
+        char = self.__class__
+        if not char.EBCDIC_TO_ASCII_MAP:
             emap = (0,1,2,3,156,9,134,127,151,141,142,11,12,13,14,15,
                     16,17,18,19,157,133,8,135,24,25,146,143,28,29,30,31,
                     128,129,130,131,132,10,23,27,136,137,138,139,140,5,6,7,
@@ -1965,9 +1965,9 @@ class UnicodeDammit:
                     90,244,245,246,247,248,249,48,49,50,51,52,53,54,55,56,57,
                     250,251,252,253,254,255)
             import string
-            c.EBCDIC_TO_ASCII_MAP = string.maketrans( \
+            char.EBCDIC_TO_ASCII_MAP = string.maketrans( \
             ''.join(map(chr, range(256))), ''.join(map(chr, emap)))
-        return s.translate(c.EBCDIC_TO_ASCII_MAP)
+        return s.translate(char.EBCDIC_TO_ASCII_MAP)
 
     MS_CHARS = { '\x80' : ('euro', '20AC'),
                  '\x81' : ' ',

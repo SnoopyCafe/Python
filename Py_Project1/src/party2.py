@@ -1,5 +1,5 @@
 class PartyAnimal:
-   x = 0
+   letter_counts = 0
 
    def party(self) :
      self.x = self.x + 1

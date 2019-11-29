@@ -144,15 +144,15 @@ while True:
     skip = 5 # reset skip count
 
     email = None
-    x = re.findall('\nFrom: .* <(\S+@\S+)>\n', hdr)
-    if len(x) == 1 : 
-        email = x[0];
+    letter_counts = re.findall('\nFrom: .* <(\S+@\S+)>\n', hdr)
+    if len(letter_counts) == 1 : 
+        email = letter_counts[0];
         email = email.strip().lower()
         email = email.replace("<","")
     else:
-        x = re.findall('\nFrom: (\S+@\S+)\n', hdr)
-        if len(x) == 1 : 
-            email = x[0];
+        letter_counts = re.findall('\nFrom: (\S+@\S+)\n', hdr)
+        if len(letter_counts) == 1 : 
+            email = letter_counts[0];
             email = email.strip().lower()
             email = email.replace("<","")
 

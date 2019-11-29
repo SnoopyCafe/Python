@@ -23,16 +23,16 @@ for message in cur :
 print ''
 print 'Top',howmany,'Email list participants'
 
-x = sorted(sendcounts, key=sendcounts.get, reverse=True)
-for k in x[:howmany]:
+letter_counts = sorted(sendcounts, key=sendcounts.get, reverse=True)
+for k in letter_counts[:howmany]:
     print k, sendcounts[k]
     if sendcounts[k] < 10 : break
 
 print ''
 print 'Top',howmany,'Email list organizations'
 
-x = sorted(sendorgs, key=sendorgs.get, reverse=True)
-for k in x[:howmany]:
+letter_counts = sorted(sendorgs, key=sendorgs.get, reverse=True)
+for k in letter_counts[:howmany]:
     print k, sendorgs[k]
     if sendorgs[k] < 10 : break
 
