@@ -1,5 +1,6 @@
 import math
 import test
+import sys
 
 class AppleBasket():
     def __init__(self, color, qty):
@@ -7,7 +8,7 @@ class AppleBasket():
         self.apple_quantity = qty
     
     def __str__(self):
-        return "A basket of {} {} apples.".format(self.apple_quantity, self.apple_color)
+        return f"A basket of {self.apple_quantity} {self.apple_color} apples."
 
     def increase(self):
         self.apple_quantity += 1
@@ -52,6 +53,8 @@ def distance(point1, point2):
     dist = math.sqrt(xdiff**2 + ydiff**2)
     return dist
 
+print(AppleBasket('red', 10))
+sys.exit(0)
 
 p = Point(4,3)
 q = Point(5,12)
@@ -71,5 +74,5 @@ print("---- one more way to do the same thing-----")
 for f in sorted(L, key=lambda x: x.sort_priority()):
     print(f.name)
 
-bkt = AppleBasket('red', 10)
+
 #####test.testEqual(bkt.apple_quantity, 10)
